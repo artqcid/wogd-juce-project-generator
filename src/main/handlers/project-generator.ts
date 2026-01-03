@@ -15,6 +15,9 @@ export interface ProjectConfig {
   guiRepoUrl: string
   targetDirectory: string
   ide: 'vscode' | 'clion' | 'visual-studio' | 'xcode' | 'cli' | 'all'
+  localOnly?: boolean
+  pluginRepo?: string
+  guiRepo?: string
 }
 
 export interface ProgressUpdate {
@@ -32,20 +35,37 @@ export class ProjectGenerator {
     onProgress: (progress: ProgressUpdate) => void
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      // Step 1: Clone plugin repository
+      // Step 1: Clone plugin template
       onProgress({
         step: 'clone-plugin',
         status: 'in-progress',
-        message: 'Cloning plugin repository...',
+        message: 'Cloning plugin template...',
       })
       await this.cloneRepository(config.pluginRepoUrl, config.targetDirectory)
       onProgress({
         step: 'clone-plugin',
         status: 'completed',
-        message: 'Plugin repository cloned',
+        message: 'Plugin template cloned',
       })
 
-      this.git = simpleGit(config.targetDirectory)
+      // Step 1b: If local mode, remove .git and reinitialize
+      if (config.localOnly) {
+        onProgress({
+          step: 'init-git',
+          status: 'in-progress',
+          message: 'Initializing new Git repository...',
+        })
+        await this.removeGitHistory(config.targetDirectory)
+        this.git = simpleGit(config.targetDirectory)
+        await this.git.init()
+        onProgress({
+          step: 'init-git',
+          status: 'completed',
+          message: 'Git repository initialized',
+        })
+      } else {
+        this.git = simpleGit(config.targetDirectory)
+      }
 
       // Step 2: Add GUI submodule
       onProgress({
@@ -53,8 +73,7 @@ export class ProjectGenerator {
         status: 'in-progress',
         message: 'Adding GUI submodule...',
       })
-      await this.git.submoduleAdd(config.guiRepoUrl, 'gui')
-      await this.git.submoduleUpdate(['--init', '--recursive'])
+      await this.addGUISubmodule(config)
       onProgress({
         step: 'add-submodule',
         status: 'completed',
@@ -115,6 +134,42 @@ export class ProjectGenerator {
   private async cloneRepository(url: string, targetPath: string): Promise<void> {
     const git = simpleGit()
     await git.clone(url, targetPath)
+  }
+
+  private async removeGitHistory(targetPath: string): Promise<void> {
+    const gitDir = path.join(targetPath, '.git')
+    if (fs.existsSync(gitDir)) {
+      fs.rmSync(gitDir, { recursive: true, force: true })
+    }
+  }
+
+  private async addGUISubmodule(config: ProjectConfig): Promise<void> {
+    if (!this.git) throw new Error('Git not initialized')
+
+    if (config.localOnly) {
+      // Local mode: Clone GUI template, remove .git, add as submodule to new repo
+      const tempGuiPath = path.join(config.targetDirectory, 'gui-temp')
+      const guiPath = path.join(config.targetDirectory, 'gui')
+      
+      // Clone GUI template to temp location
+      await this.cloneRepository(config.guiRepoUrl, tempGuiPath)
+      
+      // Remove GUI template's .git history
+      await this.removeGitHistory(tempGuiPath)
+      
+      // Rename to 'gui'
+      if (fs.existsSync(guiPath)) {
+        fs.rmSync(guiPath, { recursive: true, force: true })
+      }
+      fs.renameSync(tempGuiPath, guiPath)
+      
+      // Add GUI folder to git
+      await this.git.add('gui/*')
+    } else {
+      // GitHub mode: Add as proper submodule with user's repo
+      await this.git.submoduleAdd(config.guiRepoUrl, 'gui')
+      await this.git.submoduleUpdate(['--init', '--recursive'])
+    }
   }
 
   private async updateProjectConfig(config: ProjectConfig): Promise<void> {

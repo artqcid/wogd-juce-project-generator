@@ -79,6 +79,9 @@ const steps = ref([
     { id: 'create-gui-repo', message: 'Creating GUI repository...', status: 'pending' },
   ]),
   { id: 'clone-plugin', message: 'Cloning plugin template...', status: 'pending' },
+  ...(props.data.githubSkipped ? [
+    { id: 'init-git', message: 'Initializing Git repository...', status: 'pending' },
+  ] : []),
   { id: 'add-submodule', message: 'Adding GUI submodule...', status: 'pending' },
   { id: 'configure', message: 'Updating project configuration...', status: 'pending' },
   { id: 'install-gui', message: 'Installing GUI dependencies...', status: 'pending' },
