@@ -91,6 +91,79 @@ Watch as the generator:
 6. Configures CMake
 7. Generates IDE workspace files
 
+## Working with Local Mode
+
+When you choose **"Work Locally Only"**, the generator creates a fully functional Git repository on your local machine:
+
+### What You Get
+- ✅ Complete Git repository with initial commit
+- ✅ GUI as a local Git submodule
+- ✅ Clean project history (template history removed)
+- ✅ Ready for version control
+- ❌ No remote origin configured (stays local)
+
+### Adding a Remote Origin
+
+If you later want to push your project to GitHub, GitLab, Bitbucket, or any other Git hosting service:
+
+#### For GitHub:
+```bash
+cd your-plugin-project
+
+# Create a new repository on GitHub first, then:
+git remote add origin https://github.com/your-username/your-repo.git
+git branch -M main
+git push -u origin main
+
+# Update GUI submodule to point to its remote (if you created one)
+cd gui
+git remote add origin https://github.com/your-username/your-gui-repo.git
+git push -u origin main
+cd ..
+git add gui
+git commit -m "Update GUI submodule to remote URL"
+git push
+```
+
+#### For GitLab:
+```bash
+cd your-plugin-project
+
+# Create a new repository on GitLab first, then:
+git remote add origin https://gitlab.com/your-username/your-repo.git
+git branch -M main
+git push -u origin main
+```
+
+#### For Bitbucket:
+```bash
+cd your-plugin-project
+
+# Create a new repository on Bitbucket first, then:
+git remote add origin https://bitbucket.org/your-username/your-repo.git
+git branch -M main
+git push -u origin main
+```
+
+### Checking Git Status
+
+To verify your local Git setup:
+```bash
+cd your-plugin-project
+
+# Check current branch and status
+git status
+
+# Check if remote is configured
+git remote -v
+
+# View commit history
+git log --oneline
+
+# Check submodule status
+git submodule status
+```
+
 ## Building from Source
 
 ```bash
