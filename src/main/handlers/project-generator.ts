@@ -147,24 +147,23 @@ export class ProjectGenerator {
     if (!this.git) throw new Error('Git not initialized')
 
     if (config.localOnly) {
-      // Local mode: Clone GUI template, remove .git, add as submodule to new repo
-      const tempGuiPath = path.join(config.targetDirectory, 'gui-temp')
+      // Local mode: Clone GUI template as local submodule (no remote push)
       const guiPath = path.join(config.targetDirectory, 'gui')
       
-      // Clone GUI template to temp location
-      await this.cloneRepository(config.guiRepoUrl, tempGuiPath)
+      // Clone GUI template directly to gui folder
+      await this.cloneRepository(config.guiRepoUrl, guiPath)
       
-      // Remove GUI template's .git history
-      await this.removeGitHistory(tempGuiPath)
+      // Remove GUI template's .git history and reinitialize
+      await this.removeGitHistory(guiPath)
       
-      // Rename to 'gui'
-      if (fs.existsSync(guiPath)) {
-        fs.rmSync(guiPath, { recursive: true, force: true })
-      }
-      fs.renameSync(tempGuiPath, guiPath)
+      // Initialize fresh git repo in gui folder
+      const guiGit = simpleGit(guiPath)
+      await guiGit.init()
+      await guiGit.add('.')
+      await guiGit.commit('Initial commit')
       
-      // Add GUI folder to git
-      await this.git.add('gui/*')
+      // Add GUI as submodule pointing to local path (stays local, no remote)
+      await this.git.submoduleAdd(guiPath, 'gui')
     } else {
       // GitHub mode: Add as proper submodule with user's repo
       await this.git.submoduleAdd(config.guiRepoUrl, 'gui')
