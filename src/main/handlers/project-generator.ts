@@ -87,20 +87,7 @@ export class ProjectGenerator {
         message: 'GUI dependencies installed',
       })
 
-      // Step 5: Configure CMake
-      onProgress({
-        step: 'cmake-config',
-        status: 'in-progress',
-        message: 'Configuring CMake...',
-      })
-      await this.runCommand('cmake', ['--preset', 'ninja-clang'], path.join(config.targetDirectory, 'plugin'))
-      onProgress({
-        step: 'cmake-config',
-        status: 'completed',
-        message: 'CMake configured',
-      })
-
-      // Step 6: Generate IDE configurations
+      // Step 5: Generate IDE configurations
       onProgress({
         step: 'ide-config',
         status: 'in-progress',

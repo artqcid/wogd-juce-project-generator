@@ -32,8 +32,10 @@
       <p class="next-steps">
         <strong>Next steps:</strong><br>
         1. Open the project in your IDE<br>
-        2. Run the GUI dev server: <code>cd gui && npm run dev</code><br>
-        3. Build the plugin: <code>cd plugin && cmake --build build</code>
+        2. Run the <strong>"First Time Setup"</strong> task in your IDE<br>
+        <small style="color: #666; margin-top: 0.5rem; display: block;">
+          This will initialize the GUI submodule, install dependencies, configure CMake, and build the plugin
+        </small>
       </p>
     </div>
 
@@ -80,7 +82,6 @@ const steps = ref([
   { id: 'add-submodule', message: 'Adding GUI submodule...', status: 'pending' },
   { id: 'configure', message: 'Updating project configuration...', status: 'pending' },
   { id: 'install-gui', message: 'Installing GUI dependencies...', status: 'pending' },
-  { id: 'cmake-config', message: 'Configuring CMake...', status: 'pending' },
   { id: 'ide-config', message: 'Generating IDE configurations...', status: 'pending' },
 ])
 
