@@ -166,6 +166,12 @@ Ensure CMake is installed and available in your PATH. You can install it from [c
 ### Hot reload not working in Electron
 Electron doesn't auto-reload like browsers. Press **Ctrl+R** (or **Cmd+R** on macOS) in the Electron window to reload, or press **F12** in development mode to toggle DevTools.
 
+## Platform Support
+
+⚠️ **Testing Status**: This application has been primarily developed and tested on **Windows**. While it's built with cross-platform technologies (Electron), macOS and Linux support has not been thoroughly tested.
+
+**Help Wanted**: We welcome contributions to test and improve support for macOS and Linux! If you encounter issues on these platforms, please [open an issue](https://github.com/artqcid/wogd-juce-project-generator/issues) or submit a pull request.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
